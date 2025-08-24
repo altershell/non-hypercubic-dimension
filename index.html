@@ -1,0 +1,295 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>alter.shell — ¬(Hypercubic(d))</title>
+
+  <style>
+
+    :root{--bg:#0b0f17;--panel:#121826;--muted:#a3aab8;--text:#e6eaf2;--primary:#5eead4;--radius:16px;--shadow:0 10px 30px rgba(0,0,0,.40)}
+
+    *{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background:radial-gradient(1200px 600px at 20% -10%,#152139 0%,transparent 60%),var(--bg);color:var(--text);display:grid;place-items:center;line-height:1.5}
+
+    .app{width:min(960px,92vw);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0)),var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);overflow:clip}
+
+    .header{display:grid;grid-template-columns:280px 1fr;gap:24px;padding:20px;align-items:center}
+
+    .visual{aspect-ratio:1/1;width:100%;border-radius:12px;overflow:hidden;position:relative;background:#0a0f1a;border:1px solid rgba(255,255,255,.08)}
+
+    .visual canvas{width:100%;height:100%;display:block}
+
+    .title{display:grid;gap:6px;align-content:start}
+
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:12px}
+
+    .badge svg{width:14px;height:14px;opacity:.9}
+
+    h1{font-size:clamp(22px,2.6vw,30px);margin:4px 0;letter-spacing:.2px}
+
+    .meta{color:var(--muted);font-size:14px}
+
+    .main{display:grid;grid-template-columns:280px 1fr;gap:24px;padding:0 20px 20px 20px}
+
+    .tracklist{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden}
+
+    .tracklist header{padding:10px 12px;font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06)}
+
+    .tracks{display:grid}
+
+    .track{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px dashed rgba(255,255,255,.06)}
+
+    .track:last-child{border-bottom:none}.track:hover{background:rgba(255,255,255,.03)}
+
+    .track[aria-current="true"]{background:linear-gradient(90deg,rgba(94,234,212,.08),transparent)}
+
+    .index{color:var(--muted);font-variant-numeric:tabular-nums}.t-title{font-weight:600}
+
+    .t-duration{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+
+    .player{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;display:grid;gap:12px}
+
+    .controls{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+
+    .buttons{display:inline-grid;grid-auto-flow:column;gap:8px;align-items:center}
+
+    .btn{appearance:none;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);border-radius:10px;padding:10px;display:inline-grid;place-items:center;cursor:pointer;transition:transform .04s ease,background .2s;line-height:0}
+
+    .btn:hover{background:rgba(255,255,255,.06)}.btn:active{transform:translateY(1px)}.btn svg{width:20px;height:20px;fill:currentColor;color:var(--text);opacity:.95}
+
+    .play{padding:14px;border-radius:14px}.play[aria-pressed="true"] .icon-play{display:none}.play[aria-pressed="false"] .icon-pause{display:none}
+
+    .timeline{display:grid;gap:6px}.time-row{display:grid;grid-template-columns:1fr auto;align-items:baseline}
+
+    .time{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted)}.title-now{font-weight:700}
+
+    input[type="range"]{-webkit-appearance:none;appearance:none;height:10px;background:transparent;width:100%}
+
+    input[type="range"]:focus{outline:none}
+
+    input[type="range"]::-webkit-slider-runnable-track{height:6px;background:linear-gradient(90deg,var(--primary) var(--_p,0%),rgba(255,255,255,.14) var(--_p,0%));border-radius:999px}
+
+    input[type="range"]::-moz-range-track{height:6px;background:linear-gradient(90deg,var(--primary) var(--_p,0%),rgba(255,255,255,.14) var(--_p,0%));border-radius:999px}
+
+    input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--primary);border:none;margin-top:-5px;box-shadow:0 0 0 6px color-mix(in oklab,var(--primary) 20%,transparent)}
+
+    input[type="range"]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--primary);border:none}
+
+    .volume{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px}
+
+    @media (max-width:800px){.header,.main{grid-template-columns:1fr}}
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="app" role="application" aria-label="Album web player">
+
+    <div class="header">
+
+      <div class="visual"><canvas id="visual" aria-hidden="true"></canvas></div>
+
+      <div class="title">
+
+        <span class="badge" title="Album">
+
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 9a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
+
+          ¬(Hypercubic(d))
+
+        </span>
+
+        <h1 id="album-title">alter.shell</h1>
+
+        <div class="meta">by <span id="album-artist">alter.shell</span> • <span id="album-length">--:--</span></div>
+
+      </div>
+
+    </div>
+
+    <div class="main">
+
+      <section class="tracklist" aria-label="Tracklist">
+
+        <header>Tracks</header>
+
+        <div class="tracks" id="tracks"></div>
+
+      </section>
+
+      <section class="player" aria-label="Player">
+
+        <div class="controls">
+
+          <div class="buttons">
+
+            <button class="btn" id="prev" aria-label="Previous track" title="Previous (J)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zM20 6v12L9 12z"/></svg></button>
+
+            <button class="btn play" id="play" aria-pressed="false" aria-label="Play/Pause" title="Play/Pause (Spacebar)"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
+
+            <button class="btn" id="next" aria-label="Next track" title="Next (K)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6h-2v12h2zM4 6v12l11-6z"/></svg></button>
+
+          </div>
+
+          <div class="timeline">
+
+            <div class="time-row">
+
+              <div class="title-now" id="now-title">—</div>
+
+              <div class="time"><span id="current">0:00</span> / <span id="duration">0:00</span></div>
+
+            </div>
+
+            <input id="seek" type="range" min="0" max="100" value="0" aria-label="Progress bar" />
+
+          </div>
+
+          <div class="volume">
+
+            <button class="btn" id="mute" aria-label="Mute" title="Mute (M)"><svg id="icon-volume" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9v6h4l5 4V5L9 9H5zm12.54 3a4.5 4.5 0 0 0-2.04-3.77v7.54A4.5 4.5 0 0 0 17.54 12zm2.96 0a7.5 7.5 0 0 0-3.5-6.34v12.68A7.5 7.5 0 0 0 20.5 12z"/></svg></button>
+
+            <input id="vol" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volume" />
+
+          </div>
+
+        </div>
+
+        <noscript>
+
+          <p><audio controls src="audio/01-[LQVN4U].mp3"></audio></p>
+
+          <p><audio controls src="audio/02-[5CPCZLQ].mp3"></audio></p>
+
+        </noscript>
+
+      </section>
+
+    </div>
+
+  </div>
+
+  <audio id="audio" preload="metadata" crossorigin="anonymous"></audio>
+
+  <script>
+
+    const ALBUM={
+
+      artist:"alter.shell",
+
+      title:"¬(Hypercubic(d))",
+
+      tracks:[
+
+        {title:"01-[LQVN4U]",src:"audio/01-[LQVN4U].mp3"},
+
+        {title:"02-[5CPCZLQ]",src:"audio/02-[5CPCZLQ].mp3"}
+
+      ]
+
+    };
+
+    const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+
+    const audio=$('#audio'), elTracks=$('#tracks'), elAlbumTitle=$('#album-title'), elAlbumArtist=$('#album-artist'), elAlbumLen=$('#album-length'), elNowTitle=$('#now-title'), elCurrent=$('#current'), elDuration=$('#duration'), elSeek=$('#seek'), elVol=$('#vol'), elPrev=$('#prev'), elPlay=$('#play'), elNext=$('#next');
+
+    const canvas=$('#visual'), ctx=canvas.getContext('2d');
+
+    let audioCtx, analyser, dataArray, sourceNode;
+
+    elAlbumTitle.textContent=ALBUM.artist; elAlbumArtist.textContent=ALBUM.artist; document.title=`${ALBUM.artist} — ${ALBUM.title}`;
+
+    const savedVol=+localStorage.getItem('player-volume'); if(!Number.isNaN(savedVol)){audio.volume=savedVol; elVol.value=savedVol}
+
+    let state={index:0,durations:Array(ALBUM.tracks.length).fill(null)};
+
+    Promise.all(ALBUM.tracks.map((t,i)=>getDuration(t.src).then(d=>state.durations[i]=d))).then(()=>{renderTracklist();const total=state.durations.filter(Boolean).reduce((a,b)=>a+b,0); elAlbumLen.textContent=fmtTime(total); load(0,{autoplay:false});}).catch(()=>{renderTracklist();load(0,{autoplay:false});});
+
+    function renderTracklist(){
+
+      elTracks.innerHTML='';
+
+      ALBUM.tracks.forEach((t,i)=>{
+
+        const row=document.createElement('button');
+
+        row.className='track'; row.setAttribute('role','listitem'); row.setAttribute('aria-label',`Play ${t.title}`); row.dataset.index=i;
+
+        row.innerHTML=`<span class="index">${String(i+1).padStart(2,'0')}</span><span class="t-title">${t.title}</span><span class="t-duration">${state.durations[i]?fmtTime(state.durations[i]):'—:—'}</span>`;
+
+        row.addEventListener('click',()=>load(i,{autoplay:true})); elTracks.appendChild(row);
+
+      });
+
+      highlight();
+
+    }
+
+    function highlight(){ $$('.track').forEach(btn=>btn.setAttribute('aria-current',btn.dataset.index==state.index)); }
+
+    function load(i,{autoplay}={autoplay:false}){
+
+      state.index=i; const track=ALBUM.tracks[i]; audio.src=track.src; elNowTitle.textContent=`${String(i+1).padStart(2,'0')} — ${track.title}`; highlight();
+
+      if('mediaSession'in navigator){ navigator.mediaSession.metadata=new MediaMetadata({title:track.title,artist:ALBUM.artist,album:ALBUM.title}); }
+
+      audio.addEventListener('loadedmetadata',onLoadedMeta,{once:true}); if(autoplay) play(); else pause();
+
+    }
+
+    function onLoadedMeta(){ elDuration.textContent=fmtTime(audio.duration); setSeekPos(0); }
+
+    function play(){ audio.play(); elPlay.setAttribute('aria-pressed','true'); if(!audioCtx) initAudioGraph(); if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume(); }
+
+    function pause(){ audio.pause(); elPlay.setAttribute('aria-pressed','false'); }
+
+    elPlay.addEventListener('click',()=> (audio.paused?play():pause()));
+
+    elPrev.addEventListener('click',prev); elNext.addEventListener('click',next);
+
+    function prev(){ load((state.index-1+ALBUM.tracks.length)%ALBUM.tracks.length,{autoplay:true}); }
+
+    function next(){ load((state.index+1)%ALBUM.tracks.length,{autoplay:true}); }
+
+    audio.addEventListener('timeupdate',()=>{ elCurrent.textContent=fmtTime(audio.currentTime); const p=(audio.currentTime/(audio.duration||1))*100; setSeekPos(p); });
+
+    audio.addEventListener('ended',()=>{ if(state.index<ALBUM.tracks.length-1){ load(state.index+1,{autoplay:true}); } else { pause(); audio.currentTime=0; setSeekPos(0); } });
+
+    function setSeekPos(pct){ elSeek.value=pct; elSeek.style.setProperty('--_p',pct+'%'); }
+
+    elSeek.addEventListener('input',e=>{ const pct=+e.target.value; if(isFinite(audio.duration)) audio.currentTime=(pct/100)*audio.duration; setSeekPos(pct); });
+
+    elVol.addEventListener('input',e=>{ audio.volume=+e.target.value; localStorage.setItem('player-volume',audio.volume); updateVolumeIcon(); });
+
+    document.querySelector('#mute').addEventListener('click',()=>{ audio.muted=!audio.muted; updateVolumeIcon(); });
+
+    function updateVolumeIcon(){ const icon=document.querySelector('#icon-volume'); icon.innerHTML=(audio.muted||audio.volume===0)?'<path d="M5 9v6h4l5 4V5L9 9H5zm13.41 2.59-1.41-1.41L14.17 13l2.83 2.83 1.41-1.41L16 13l2.41-1.41Z"/>':'<path d="M5 9v6h4l5 4V5L9 9H5zm12.54 3a4.5 4.5 0 0 0-2.04-3.77v7.54A4.5 4.5 0 0 0 17.54 12zm2.96 0a7.5 7.5 0 0 0-3.5-6.34v12.68A7.5 7.5 0 0 0 20.5 12z"/>'; }
+
+    document.addEventListener('keydown',e=>{ if(['INPUT','TEXTAREA'].includes(e.target.tagName)) return; if(e.code==='Space'){ e.preventDefault(); audio.paused?play():pause(); } if(e.key.toLowerCase()==='j') prev(); if(e.key.toLowerCase()==='k') next(); if(e.key.toLowerCase()==='m'){ audio.muted=!audio.muted; updateVolumeIcon(); } if(e.key==='ArrowLeft') audio.currentTime=Math.max(0,audio.currentTime-5); if(e.key==='ArrowRight') audio.currentTime=Math.min(audio.duration||0,audio.currentTime+5); if(e.key==='ArrowUp'){ e.preventDefault(); elVol.value=Math.min(1,(+elVol.value+0.05)).toFixed(2); elVol.dispatchEvent(new Event('input')); } if(e.key==='ArrowDown'){ e.preventDefault(); elVol.value=Math.max(0,(+elVol.value-0.05)).toFixed(2); elVol.dispatchEvent(new Event('input')); } });
+
+    if('mediaSession'in navigator){ navigator.mediaSession.setActionHandler('previoustrack',prev); navigator.mediaSession.setActionHandler('nexttrack',next); navigator.mediaSession.setActionHandler('pause',pause); navigator.mediaSession.setActionHandler('play',play); navigator.mediaSession.setActionHandler('seekto',d=>{ if(d.seekTime!=null) audio.currentTime=d.seekTime; }); }
+
+    function initAudioGraph(){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); sourceNode=audioCtx.createMediaElementSource(audio); analyser=audioCtx.createAnalyser(); analyser.fftSize=2048; dataArray=new Uint8Array(analyser.fftSize); sourceNode.connect(analyser); startDrawing(); }catch(e){ console.error('Web Audio not available:',e); } }
+
+    function resizeCanvas(){ const dpr=Math.max(1,window.devicePixelRatio||1); const {clientWidth:w,clientHeight:h}=canvas; canvas.width=Math.max(1,Math.floor(w*dpr)); canvas.height=Math.max(1,Math.floor(h*dpr)); return {w:canvas.width,h:canvas.height}; }
+
+    let rafId; function startDrawing(){ cancelAnimationFrame(rafId); const draw=()=>{ rafId=requestAnimationFrame(draw); if(!analyser) return; const {w,h}=resizeCanvas(); analyser.getByteTimeDomainData(dataArray); ctx.clearRect(0,0,w,h); const grad=ctx.createLinearGradient(0,0,0,h); grad.addColorStop(0,'rgba(255,255,255,0.06)'); grad.addColorStop(1,'rgba(255,255,255,0.02)'); ctx.fillStyle=grad; ctx.fillRect(0,0,w,h); ctx.lineWidth=Math.max(2,h*0.006); ctx.strokeStyle='rgba(94,234,212,0.9)'; ctx.beginPath(); const slice=w/dataArray.length; for(let i=0;i<dataArray.length;i++){ const v=(dataArray[i]-128)/128; const x=i*slice; const y=h/2+v*(h*0.36); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); ctx.globalAlpha=0.25; ctx.lineWidth*=3; ctx.stroke(); ctx.globalAlpha=1; }; draw(); }
+
+    window.addEventListener('resize',()=>resizeCanvas());
+
+    function fmtTime(sec){ if(!isFinite(sec)) return '0:00'; const s=Math.floor(sec%60).toString().padStart(2,'0'); const m=Math.floor(sec/60).toString(); return `${m}:${s}`; }
+
+    function getDuration(src){ return new Promise((resolve,reject)=>{ const a=new Audio(); a.preload='metadata'; a.src=src; a.addEventListener('loadedmetadata',()=>resolve(a.duration),{once:true}); a.addEventListener('error',reject,{once:true}); }); }
+
+  </script>
+
+</body>
+
+</html>
