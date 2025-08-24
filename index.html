@@ -288,7 +288,7 @@
 
             <div class="design-panel"><span class="dot"></span> <span>Shadows design system v0.1</span></div>
 
-            <div class="subtle">© <span class="year"></span> FEHL</div>
+            <div class="subtle">© <span class="year"></span>¬</div>
 
           </div>
 
@@ -308,9 +308,9 @@
 
       const TRACKS = [
 
-        { title: 'Side A', file: './[LQVN4U].mp3' },
+        { title: '[LQVN4U]', file: './LQVN4U.mp3' },
 
-        { title: 'Side B', file: './[5CPCZLQ].mp3' },
+        { title: '[5CPCZLQ]', file: './5CPCZLQ.mp3' },
 
       ];
 
@@ -566,11 +566,11 @@
 
           setActiveTrack(1, false);
 
-          console.assert(audio.src.includes('[5CPCZLQ].mp3'), 'Selecting second track should set audio src to [5CPCZLQ].mp3');
+          console.assert(audio.src.includes('5CPCZLQ.mp3'), 'Selecting second track should set audio src to 5CPCZLQ.mp3');
 
           setActiveTrack(0, false);
 
-          console.assert(audio.src.includes('[LQVN4U].mp3'), 'Selecting first track should set audio src to [LQVN4U].mp3');
+          console.assert(audio.src.includes('LQVN4U.mp3'), 'Selecting first track should set audio src to LQVN4U.mp3');
 
           console.log('%cAll runtime checks passed.', 'padding:2px 6px;border-radius:4px;background:#10b981;color:white');
 
