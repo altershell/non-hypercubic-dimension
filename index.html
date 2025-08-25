@@ -1,589 +1,170 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
-
-  <head>
-
-    <meta charset="utf-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>¬(Hypercubic(d)) — alter.shell</title>
-
-    <meta name="description" content="¬(Hypercubic(d))" />
-
-    <meta name="theme-color" content="#0f0f10" />
-
-    <!-- Open Graph (social cards) -->
-
-    <meta property="og:title" content="¬(Hypercubic(d))" />
-
-    <meta property="og:description" content="alter.shell" />
-
-    <meta property="og:type" content="website" />
-
-    <meta property="og:image" content="assets/cover.jpg" />
-
-    <style>
-
-      :root {
-
-        --fg: #eaeaea;
-
-        --subtle: #b7bac2;
-
-        --bg: #0f0f10;
-
-        --accent: #9accff;
-
-        --radius: 16px;
-
-        --shadow-1: 0 4px 12px rgba(0,0,0,0.18), 0 12px 30px rgba(0,0,0,0.20);
-
-        --shadow-2: 0 12px 24px rgba(0,0,0,0.12);
-
-        --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.06);
-
-        --focus: 0 0 0 3px rgba(0,0,0,0.06), 0 0 0 6px rgba(0,0,0,0.14);
-
-      }
-
-      @media (prefers-color-scheme: light) {
-
-        :root {
-
-          --fg: #0f0f10;
-
-          --subtle: #4a4d57;
-
-          --bg: #f8f8f8;
-
-          --accent: #1e7bd0;
-
-          --shadow-1: 0 4px 12px rgba(0,0,0,0.10), 0 12px 30px rgba(0,0,0,0.08);
-
-          --shadow-2: 0 12px 24px rgba(0,0,0,0.09);
-
-          --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.04);
-
-          --focus: 0 0 0 3px rgba(0,0,0,0.06), 0 0 0 6px rgba(0,0,0,0.14);
-
-        }
-
-      }
-
-      body {
-
-        margin: 0;
-
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-
-        color: var(--fg);
-
-        background: radial-gradient(1200px 600px at 60% -10%, rgba(255,255,255,0.06), transparent 55%),
-
-                    radial-gradient(900px 400px at -10% 10%, rgba(0,0,0,0.25), transparent 50%),
-
-                    linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0.1) 15%, transparent 40%),
-
-                    var(--bg);
-
-        min-height: 100dvh;
-
-        display: grid;
-
-        place-items: center;
-
-        overflow-x: hidden;
-
-      }
-
-      .container { width: min(860px, 100vw); padding: 32px 20px 28px; }
-
-      .card { position: relative; background: rgba(255,255,255,0.06); border-radius: var(--radius); box-shadow: var(--shadow-1); overflow: clip; }
-
-      .top { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
-
-      .cover { position: relative; aspect-ratio: 1/1; border-radius: 12px; overflow: hidden; background: linear-gradient(120deg, rgba(0,0,0,0.4), rgba(0,0,0,0.15)), url('assets/cover.jpg') center/cover no-repeat; }
-
-      .cover::after { content: ""; position: absolute; inset: 0; background:
-
-        radial-gradient(140% 200% at 0% 100%, rgba(0,0,0,0.26), transparent 55%),
-
-        radial-gradient(120% 90% at 80% 120%, rgba(0,0,0,0.55), transparent 60%);
-
-        mix-blend-mode: multiply; pointer-events:none; }
-
-      .cover::before { content:""; position:absolute; inset:-10%; background:
-
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 4px);
-
-        opacity:.35; filter: blur(.3px); pointer-events:none; }
-
-      .shadows { position:absolute; inset:0; filter: contrast(1.05) saturate(0.95); }
-
-      .blob { position:absolute; width: 220px; height:220px; background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.8), rgba(0,0,0,0.0) 60%), radial-gradient(circle at 70% 60%, rgba(0,0,0,0.5), transparent 60%); filter: blur(18px); border-radius: 50%; mix-blend-mode: screen; opacity: 0.65; animation: float 9s ease-in-out infinite alternate; }
-
-      .blob.b2 { left: 20%; top: 25%; animation-duration: 12s; }
-
-      .blob.b3 { right: 10%; bottom: 14%; animation-duration: 10s; }
-
-      .veil { position:absolute; inset:0; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02) 25%, rgba(0,0,0,0.24) 70%); mix-blend-mode: soft-light; pointer-events:none; }
-
-      .beam { position:absolute; left: -20%; top: -10%; width: 160%; height: 80%; background: linear-gradient(75deg, rgba(255,255,255,0.14), transparent 60%); transform: rotate(-8deg); filter: blur(40px); mix-blend-mode: screen; opacity: .45; animation: shine 10s linear infinite; }
-
-      @keyframes float { from { transform: translate(0, 0); } to { transform: translate(14px, -12px); } }
-
-      @keyframes shine { from { transform: translateX(-10%) rotate(-8deg); } to { transform: translateX(0) rotate(-8deg); } }
-
-      @media (prefers-reduced-motion: reduce) { .blob, .veil, .beam { animation:none !important; } }
-
-      .content { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; padding: 20px; }
-
-      h1 { font-size: clamp(22px, 2.3vw, 28px); line-height: 1.2; margin: 0; letter-spacing: .2px; }
-
-      .subtle { color: var(--subtle); font-size: 14px; }
-
-      .row { display: flex; align-items: center; gap: 12px; }
-
-      .artist { font-weight: 600; letter-spacing: .3px; }
-
-      .controls { display:flex; align-items:center; gap:10px; }
-
-      .controls button { border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); box-shadow: var(--shadow-2), var(--shadow-inset); width: 48px; height: 48px; display:grid; place-items:center; cursor:pointer; }
-
-      .controls button:hover { box-shadow: var(--shadow-2), var(--shadow-inset), 0 0 0 6px rgba(0,0,0,0.06); }
-
-      .controls button:focus-visible { outline: none; box-shadow: var(--focus); }
-
-      .controls svg { width:24px; height:24px; fill: currentColor; }
-
-      .barwrap { display:grid; gap:8px; }
-
-      .progress { --h: 8px; --w: min(420px, 52vw); position:relative; width: var(--w); height: var(--h); background: rgba(255,255,255,0.24); border-radius:999px; overflow:clip; box-shadow: var(--shadow-inset); cursor: pointer; }
-
-      .bar { position: absolute; inset: 0 100% 0 0; background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.75)); border-radius: 999px; box-shadow: var(--shadow-inset); transition: inset .12s ease; }
-
-      .time { font-variant-numeric: tabular-nums; font-size:13px; color: var(--subtle); }
-
-      .tracklist { display:grid; gap: 10px; }
-
-      .track { display:flex; align-items:center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 10px; cursor: pointer; }
-
-      .track.active { background: rgba(255,255,255,0.08); }
-
-      .track .title { font-weight:600; letter-spacing:.2px; }
-
-      .track .subtle { display:flex; align-items:center; gap: 10px; }
-
-      footer { margin-top: 18px; opacity: .9; }
-
-      .footrow { display:flex; flex-wrap:wrap; align-items:center; justify-content: space-between; gap: 10px; }
-
-      .design-panel { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--subtle); }
-
-      .dot { display:inline-block; width:10px; height:10px; border-radius:999px; background:var(--accent); box-shadow: 0 0 0 6px rgba(46, 144, 250, 0.13), 0 0 0 12px rgba(46, 144, 250, 0.07); }
-
-      .sep { opacity:.5; }
-
-      @media (max-width: 720px) {
-
-        .top { grid-template-columns: 1fr; }
-
-        .content { grid-template-columns: 1fr; }
-
-        .progress { --w: 100%; }
-
-        .cover { aspect-ratio: 16/9; }
-
-      }
-
-    </style>
-
-  </head>
-
-  <body>
-
-    <div class="container">
-
-      <div class="card">
-
-        <div class="top">
-
-          <div class="cover" aria-hidden="true">
-
-            <div class="shadows">
-
-              <div class="blob b1" style="left: 6%; top: 16%;"></div>
-
-              <div class="blob b2"></div>
-
-              <div class="blob b3"></div>
-
-              <div class="beam"></div>
-
-              <div class="veil"></div>
-
-            </div>
-
-          </div>
-
-          <div class="content">
-
-            <div>
-
-              <h1>¬(Hypercubic(d))</h1>
-
-              <div class="subtle row">by <span class="artist">alter.shell</span><span class="sep">·</span><span class="year"></span></div>
-
-              <div class="controls" style="margin-top: 14px">
-
-                <button id="toggle" aria-label="Play">
-
-                  <span id="icon-play" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
-
-                  <span id="icon-pause" aria-hidden="true" style="display:none"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg></span>
-
-                </button>
-
-                <div class="barwrap">
-
-                  <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" tabindex="0" aria-label="Progress">
-
-                    <div class="bar" id="bar"></div>
-
-                  </div>
-
-                  <div class="time row"><span id="cur">0:00</span> / <span id="dur">0:00</span></div>
-
-                </div>
-
-              </div>
-
-              <div style="margin-top: 16px">
-
-                <div class="subtle">Now playing</div>
-
-                <div id="now-title" style="font-weight:600; letter-spacing:.2px;">–</div>
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <div class="subtle" style="margin-bottom:8px">Tracklist</div>
-
-              <div class="tracklist" id="tracklist"></div>
-
-            </div>
-
-          </div>
-
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Non‑Hypercubic Dimension</title>
+  <!--
+    Files expected in the same folder/repo:
+      index.html (this file)
+      LQVN4U.mp3
+      5CPCZLQ.mp3
+  -->
+  <style>
+    /* Minimal, Loos‑ish: neutral palette, clear structure, no ornament. */
+    :root{ --paper:#f6f6f4; --ink:#111; --line:#d6d6d2; --muted:#666; }
+    @media (prefers-color-scheme: dark){ :root{ --paper:#0f0f0f; --ink:#e8e8e6; --line:#2a2a2a; --muted:#9a9a96; } }
+    html,body{height:100%;margin:0;background:var(--paper);color:var(--ink);
+      font:16px/1.45 ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;}
+    .wrap{max-width:880px;margin:0 auto;padding:48px 24px 56px;}
+    header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:28px;border-bottom:1px solid var(--line);padding-bottom:14px}
+    h1{font-size:20px;font-weight:600;margin:0}
+    .subtitle{font-size:13px;color:var(--muted);margin:0}
+
+    .player{display:grid;gap:18px}
+    .row{display:flex;gap:12px;align-items:center;}
+
+    .btn{appearance:none;border:1px solid var(--ink);background:transparent;color:var(--ink);
+      padding:8px 10px;font-size:14px;border-radius:6px;cursor:pointer}
+    .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+    .btn:focus{outline:2px solid var(--ink);outline-offset:2px}
+    .list{display:flex;flex-wrap:wrap;gap:8px}
+
+    .controls{display:flex;flex-wrap:wrap;gap:8px}
+    .toggle{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:8px 10px;border-radius:6px}
+    .toggle input{accent-color:currentColor}
+
+    audio{width:100%;filter:none}
+
+    .meta{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+    .title{font-size:15px}
+    .time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+    footer{margin-top:36px;border-top:1px solid var(--line);padding-top:12px;font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>¬(Hypercubic(d))</h1>
+        <p class="subtitle">alter.shell</p>
+      </div>
+      <div class="subtitle">2025</div>
+    </header>
+
+    <section class="player" aria-label="audio player">
+      <div class="row">
+        <div class="list" role="tablist" aria-label="tracks">
+          <button id="t1" role="tab" class="btn" aria-selected="true" aria-pressed="true">side one</button>
+          <button id="t2" role="tab" class="btn" aria-selected="false" aria-pressed="false">side two</button>
         </div>
-
-        <footer>
-
-          <div class="footrow">
-
-            <div class="design-panel"><span class="dot"></span> <span>Shadows design system v0.1</span></div>
-
-            <div class="subtle">© <span class="year"></span>¬</div>
-
-          </div>
-
-        </footer>
-
       </div>
 
-    </div>
+      <audio id="audio" preload="metadata" controls></audio>
 
-    <audio id="audio" preload="metadata"></audio>
+      <div class="controls" aria-label="playback options">
+        <label class="toggle"><input type="checkbox" id="continuous" checked> continuous</label>
+        <label class="toggle"><input type="checkbox" id="repeatAll"> repeat all</label>
+        <button id="playBoth" class="btn" aria-label="play both tracks">play both</button>
+      </div>
 
-    <!-- Keep JS at the very end so DOM elements exist before we touch them -->
+      <div class="meta">
+        <div class="title" id="trackTitle">non‑hypercubic universe — side one</div>
+        <div class="time"><span id="cur">0:00</span> / <span id="dur">0:00</span></div>
+      </div>
+    </section>
 
-    <script>
+    <footer>
+      Keyboard: <kbd>Space</kbd> play/pause · <kbd>←/→</kbd> seek 5s · <kbd>↑/↓</kbd> volume · <kbd>N</kbd>/<kbd>P</kbd> next/prev
+    </footer>
+  </div>
 
-      // ===== Config =====
+  <script>
+  (function(){
+    const TRACKS = [
+      { id:'t1', title:'[LQVN4U]', src:'LQVN4U.mp3' },
+      { id:'t2', title:'[5CPCZLQ]', src:'5CPCZLQ.mp3' }
+    ];
 
-      const TRACKS = [
+    const audio = document.getElementById('audio');
+    const t1 = document.getElementById('t1');
+    const t2 = document.getElementById('t2');
+    const title = document.getElementById('trackTitle');
+    const cur = document.getElementById('cur');
+    const dur = document.getElementById('dur');
+    const continuous = document.getElementById('continuous');
+    const repeatAll = document.getElementById('repeatAll');
+    const playBoth = document.getElementById('playBoth');
 
-        { title: '[LQVN4U]', file: './LQVN4U.mp3' },
+    let current = 0;
 
-        { title: '[5CPCZLQ]', file: './5CPCZLQ.mp3' },
-
-      ];
-
-      // ===== Cache DOM =====
-
-      const audio = document.getElementById('audio');
-
-      const toggle = document.getElementById('toggle');
-
-      const iconPlay = document.getElementById('icon-play');
-
-      const iconPause = document.getElementById('icon-pause');
-
-      const bar = document.getElementById('bar');
-
-      const progress = document.getElementById('progress');
-
-      const cur = document.getElementById('cur');
-
-      const dur = document.getElementById('dur');
-
-      const tracklistEl = document.getElementById('tracklist');
-
-      const nowTitle = document.getElementById('now-title');
-
-      // ===== State =====
-
-      let current = 0;           // index of the current track
-
-      const durations = [];      // cache of durations per track (seconds)
-
-      // ===== Utils =====
-
-      const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-
-      function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
-
-      function formatTime(sec) {
-
-        if (!isFinite(sec)) return '0:00';
-
-        const s = Math.floor(sec % 60).toString().padStart(2, '0');
-
-        const m = Math.floor(sec / 60);
-
-        return `${m}:${s}`;
-
+    function setTrack(i, opts={}){
+      const { autoplay=false, fromUser=false } = opts;
+      current = i;
+      audio.src = TRACKS[i].src;
+      title.textContent = TRACKS[i].title;
+      document.title = TRACKS[i].title + ' — webplayer';
+      t1.setAttribute('aria-selected', String(i===0));
+      t2.setAttribute('aria-selected', String(i===1));
+      t1.setAttribute('aria-pressed', String(i===0));
+      t2.setAttribute('aria-pressed', String(i===1));
+      if('mediaSession' in navigator){
+        navigator.mediaSession.metadata = new MediaMetadata({ title: TRACKS[i].title, artist: 'alter.shell', album: 'Non‑Hypercubic Universe', artwork: [] });
       }
+      if(autoplay){ audio.play().catch(()=>{}); }
+    }
 
-      function setYear() { $$('.year').forEach(n => n.textContent = new Date().getFullYear()); }
+    function nextIndex(){ return Math.min(TRACKS.length-1, current+1); }
+    function prevIndex(){ return Math.max(0, current-1); }
 
-      function updatePlayState(playing) {
+    // click handlers — still selectable individually
+    t1.addEventListener('click', ()=> setTrack(0, {autoplay:true, fromUser:true}));
+    t2.addEventListener('click', ()=> setTrack(1, {autoplay:true, fromUser:true}));
 
-        iconPlay.style.display = playing ? 'none' : '';
-
-        iconPause.style.display = playing ? '' : 'none';
-
-        toggle.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-
+    // continuous play logic
+    audio.addEventListener('ended', ()=>{
+      if(continuous.checked){
+        if(current < TRACKS.length-1){
+          setTrack(current+1, {autoplay:true});
+        } else if(repeatAll.checked){
+          setTrack(0, {autoplay:true});
+        } // else: stop naturally
       }
-
-      // ===== Build Tracklist =====
-
-      function buildList() {
-
-        tracklistEl.innerHTML = '';
-
-        TRACKS.forEach((t, i) => {
-
-          const row = document.createElement('div');
-
-          row.className = 'track';
-
-          row.innerHTML = `
-
-            <div class="meta">
-
-              <div class="title">${t.title}</div>
-
-              <div class="subtle row">
-
-                <span id="len-${i}">–:–</span>
-
-                <a href="${t.file}" title="Open file" rel="noopener" aria-label="Open file"> 
-
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 12a5 5 0 015-5h3v2H8.9a3 3 0 000 6h3v2h-3a5 5 0 01-5-5zm7.1-2h2v4h-2v-4zm3-3h3a5 5 0 010 10h-3v-2h3a3 3 0 000-6h-3V7z"/></svg>
-
-                </a>
-
-              </div>
-
-            </div>
-
-            <div class="row" aria-hidden="true">▶</div>`;
-
-          row.addEventListener('click', () => setActiveTrack(i, true));
-
-          tracklistEl.appendChild(row);
-
-        });
-
-      }
-
-      // ===== Player Logic =====
-
-      function setActiveTrack(i, autoplay=false) {
-
-        current = i;
-
-        $$('.track', tracklistEl).forEach((el, idx) => el.classList.toggle('active', idx === i));
-
-        audio.src = TRACKS[i].file;
-
-        audio.load();
-
-        nowTitle.textContent = TRACKS[i].title;
-
-        updatePlayState(false);
-
-        if (autoplay) audio.play().catch(()=>{});
-
-      }
-
-      function attachEvents() {
-
-        toggle.addEventListener('click', () => {
-
-          if (!audio.src) return;
-
-          if (audio.paused) { audio.play().catch(()=>{}); updatePlayState(true); }
-
-          else { audio.pause(); updatePlayState(false); }
-
-        });
-
-        audio.addEventListener('timeupdate', () => {
-
-          if (!isFinite(audio.duration)) return;
-
-          const pct = (audio.currentTime / audio.duration) * 100;
-
-          bar.style.inset = `0 ${clamp(100 - pct, 0, 100)}% 0 0`;
-
-          progress.setAttribute('aria-valuenow', Math.round(pct));
-
-          cur.textContent = formatTime(audio.currentTime);
-
-          dur.textContent = formatTime(audio.duration);
-
-        });
-
-        audio.addEventListener('loadedmetadata', () => {
-
-          durations[current] = audio.duration;
-
-          const len = document.getElementById(`len-${current}`);
-
-          if (len) len.textContent = formatTime(audio.duration);
-
-          dur.textContent = formatTime(audio.duration);
-
-        });
-
-        audio.addEventListener('ended', () => { updatePlayState(false); });
-
-        // Seek with mouse
-
-        function seekTo(clientX) {
-
-          const rect = progress.getBoundingClientRect();
-
-          const pct = clamp((clientX - rect.left) / rect.width, 0, 1);
-
-          audio.currentTime = pct * (audio.duration || 0);
-
-        }
-
-        progress.addEventListener('click', (e) => seekTo(e.clientX));
-
-        progress.addEventListener('keydown', (e) => {
-
-          if (e.key === 'ArrowRight') { audio.currentTime = Math.min((audio.currentTime||0)+5, audio.duration||0); }
-
-          if (e.key === 'ArrowLeft')  { audio.currentTime = Math.max((audio.currentTime||0)-5, 0); }
-
-          if (e.key === 'Home') { audio.currentTime = 0; }
-
-          if (e.key === 'End' && isFinite(audio.duration)) { audio.currentTime = audio.duration; }
-
-        });
-
-        // Space toggles play/pause if focus isn't on a control
-
-        document.addEventListener('keydown', (e) => {
-
-          if (e.code === 'Space' && !e.target.closest('a, button, input, textarea')) { e.preventDefault(); toggle.click(); }
-
-        });
-
-      }
-
-      // Preload durations (metadata only)
-
-      function preloadDurations() {
-
-        TRACKS.forEach((t, i) => {
-
-          const a = new Audio();
-
-          a.preload = 'metadata';
-
-          a.src = t.file;
-
-          a.addEventListener('loadedmetadata', () => {
-
-            durations[i] = a.duration;
-
-            const len = document.getElementById(`len-${i}`);
-
-            if (len) len.textContent = formatTime(durations[i]);
-
-          });
-
-        });
-
-      }
-
-      // ===== Init =====
-
-      (function init(){
-
-        setYear();
-
-        buildList();
-
-        setActiveTrack(0, false);
-
-        attachEvents();
-
-        preloadDurations();
-
-      })();
-
-      // ===== Simple runtime tests (results in console) =====
-
-      (function tests(){
-
-        try {
-
-          console.assert(TRACKS.length === 2, 'There should be exactly 2 tracks');
-
-          console.assert($$('.track', tracklistEl).length === 2, 'Tracklist should render 2 rows');
-
-          setActiveTrack(1, false);
-
-          console.assert(audio.src.includes('5CPCZLQ.mp3'), 'Selecting second track should set audio src to 5CPCZLQ.mp3');
-
-          setActiveTrack(0, false);
-
-          console.assert(audio.src.includes('LQVN4U.mp3'), 'Selecting first track should set audio src to LQVN4U.mp3');
-
-          console.log('%cAll runtime checks passed.', 'padding:2px 6px;border-radius:4px;background:#10b981;color:white');
-
-        } catch (e) {
-
-          console.error('Test failed:', e);
-
-        }
-
-      })();
-
-    </script>
-
-  </body>
-
+    });
+
+    // play both convenience
+    playBoth.addEventListener('click', ()=>{ continuous.checked = true; setTrack(0, {autoplay:true}); });
+
+    // Media Session actions
+    if('mediaSession' in navigator){
+      navigator.mediaSession.setActionHandler('previoustrack', ()=>{ setTrack(prevIndex(), {autoplay:true}); });
+      navigator.mediaSession.setActionHandler('nexttrack', ()=>{ setTrack((current<TRACKS.length-1)? current+1 : (repeatAll.checked?0:current), {autoplay:true}); });
+      navigator.mediaSession.setActionHandler('play', ()=> audio.play());
+      navigator.mediaSession.setActionHandler('pause', ()=> audio.pause());
+      navigator.mediaSession.setActionHandler('seekbackward', (d)=>{ audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset||5)); });
+      navigator.mediaSession.setActionHandler('seekforward', (d)=>{ audio.currentTime = Math.min(audio.duration||1e9, audio.currentTime + (d.seekOffset||5)); });
+    }
+
+    // time display
+    function fmt(t){ if(!isFinite(t)) return '0:00'; t = Math.max(0, Math.floor(t)); const m = Math.floor(t/60), s = t%60; return m + ':' + String(s).padStart(2,'0'); }
+    audio.addEventListener('loadedmetadata', ()=>{ dur.textContent = fmt(audio.duration); });
+    audio.addEventListener('timeupdate', ()=>{ cur.textContent = fmt(audio.currentTime); });
+
+    // keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+      if(e.code==='Space'){ e.preventDefault(); if(audio.paused) audio.play(); else audio.pause(); }
+      if(e.key==='ArrowRight'){ audio.currentTime = Math.min(audio.duration||1e9, audio.currentTime + 5); }
+      if(e.key==='ArrowLeft'){ audio.currentTime = Math.max(0, audio.currentTime - 5); }
+      if(e.key==='ArrowUp'){ audio.volume = Math.min(1, (audio.volume + 0.05)); }
+      if(e.key==='ArrowDown'){ audio.volume = Math.max(0, (audio.volume - 0.05)); }
+      if(e.key==='n' || e.key==='N'){ setTrack((current<TRACKS.length-1)? current+1 : (repeatAll.checked?0:current), {autoplay:true}); }
+      if(e.key==='p' || e.key==='P'){ setTrack(prevIndex(), {autoplay:true}); }
+    });
+
+    // init
+    setTrack(0);
+  })();
+  </script>
+</body>
 </html>
